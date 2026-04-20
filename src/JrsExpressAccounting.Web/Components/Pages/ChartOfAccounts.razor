@@ -1,0 +1,22 @@
+@page "/chart-of-accounts"
+@attribute [Authorize(Policy="AccountingOnly")]
+@inject AccountingDbContext Db
+
+<h1>Chart of Accounts</h1>
+<div class="card mb-3"><div class="card-body"><EditForm Model="model" OnValidSubmit="Save"><div class="row g-2">
+<div class="col"><InputText class="form-control" @bind-Value="model.Code" placeholder="Code" /></div>
+<div class="col"><InputText class="form-control" @bind-Value="model.Name" placeholder="Name" /></div>
+<div class="col"><InputText class="form-control" @bind-Value="model.AccountType" placeholder="Type" /></div>
+<div class="col"><InputSelect class="form-select" @bind-Value="model.ParentAccountId"><option value="">No Parent</option>@foreach(var a in parents){<option value="@a.Id">@a.Code - @a.Name</option>}</InputSelect></div>
+<div class="col-auto"><button class="btn btn-success">Add</button></div>
+</div></EditForm></div></div>
+<table class="table table-sm"><thead><tr><th>Code</th><th>Name</th><th>Type</th><th>Parent</th></tr></thead><tbody>@foreach(var x in items){<tr><td>@x.Code</td><td>@x.Name</td><td>@x.AccountType</td><td>@x.ParentAccount?.Name</td></tr>}</tbody></table>
+
+@code {
+    private List<ChartOfAccount> items = new();
+    private List<ChartOfAccount> parents = new();
+    private ChartOfAccount model = new();
+    protected override async Task OnInitializedAsync(){ await Load(); }
+    private async Task Load(){ items = await Db.ChartOfAccounts.Include(x=>x.ParentAccount).OrderBy(x=>x.Code).ToListAsync(); parents=items; }
+    private async Task Save(){ Db.ChartOfAccounts.Add(model); await Db.SaveChangesAsync(); model = new(); await Load(); }
+}

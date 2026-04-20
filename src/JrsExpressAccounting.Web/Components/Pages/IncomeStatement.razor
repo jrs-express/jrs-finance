@@ -1,0 +1,24 @@
+@page "/income-statement"
+@attribute [Authorize(Policy="AccountingOnly")]
+@inject AccountingDbContext Db
+
+<h1>Income Statement</h1>
+<div class="row g-2 mb-2"><div class="col"><InputDate class="form-control" @bind-Value="dateFrom" /></div><div class="col"><InputDate class="form-control" @bind-Value="dateTo" /></div><div class="col-auto"><button class="btn btn-success" @onclick="Load">Apply</button></div></div>
+<table class="table table-sm"><thead><tr><th>Category</th><th class="text-end">Amount</th></tr></thead><tbody>
+<tr><td>Total Income</td><td class="text-end">@totalIncome.ToString("N2")</td></tr>
+<tr><td>Total Expenses</td><td class="text-end">@totalExpense.ToString("N2")</td></tr>
+<tr class="fw-bold"><td>Net Income</td><td class="text-end">@(totalIncome-totalExpense).ToString("N2")</td></tr>
+</tbody></table>
+
+@code {
+    private DateTime dateFrom = new(DateTime.Today.Year, 1, 1);
+    private DateTime dateTo = DateTime.Today;
+    private decimal totalIncome;
+    private decimal totalExpense;
+    protected override Task OnInitializedAsync()=>Load();
+    private async Task Load(){
+        var lines = await Db.JournalEntries.Where(x=>x.EntryDate>=dateFrom && x.EntryDate<=dateTo).SelectMany(x=>x.Lines.Select(l=>new { l.Debit, l.Credit, Type = l.ChartOfAccount.AccountType })).ToListAsync();
+        totalIncome = lines.Where(x=>x.Type=="Income").Sum(x=>x.Credit-x.Debit);
+        totalExpense = lines.Where(x=>x.Type=="Expense").Sum(x=>x.Debit-x.Credit);
+    }
+}

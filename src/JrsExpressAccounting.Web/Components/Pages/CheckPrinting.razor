@@ -1,0 +1,22 @@
+@page "/check-printing"
+@attribute [Authorize(Policy="AccountingOnly")]
+@inject AccountingDbContext Db
+
+<h1>Check Printing</h1>
+<EditForm Model="model" OnValidSubmit="Save" class="row g-2 mb-3">
+    <div class="col"><InputText class="form-control" @bind-Value="model.CheckNo" placeholder="Check #" /></div>
+    <div class="col"><InputDate class="form-control" @bind-Value="model.CheckDate" /></div>
+    <div class="col"><InputText class="form-control" @bind-Value="model.Payee" placeholder="Payee" /></div>
+    <div class="col"><InputNumber class="form-control" @bind-Value="model.Amount" /></div>
+    <div class="col"><InputText class="form-control" @bind-Value="model.Purpose" placeholder="Purpose" /></div>
+    <div class="col-auto"><button class="btn btn-success">Queue for Print</button></div>
+</EditForm>
+<table class="table table-sm"><thead><tr><th>Check #</th><th>Date</th><th>Payee</th><th>Amount</th><th>Status</th></tr></thead><tbody>@foreach(var c in items){<tr><td>@c.CheckNo</td><td>@c.CheckDate.ToShortDateString()</td><td>@c.Payee</td><td>@c.Amount.ToString("N2")</td><td>@(c.IsPrinted?"Printed":"Pending")</td></tr>}</tbody></table>
+
+@code {
+    private CheckPrint model = new() { CheckDate = DateTime.Today };
+    private List<CheckPrint> items = new();
+    protected override Task OnInitializedAsync()=>Load();
+    private async Task Load()=>items=await Db.CheckPrints.OrderByDescending(x=>x.CheckDate).Take(100).ToListAsync();
+    private async Task Save(){Db.CheckPrints.Add(model); await Db.SaveChangesAsync(); model = new(){CheckDate=DateTime.Today}; await Load();}
+}

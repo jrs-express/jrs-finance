@@ -1,0 +1,20 @@
+@page "/banks"
+@attribute [Authorize(Policy="AccountingOnly")]
+@inject AccountingDbContext Db
+
+<h1>Banks</h1>
+<div class="card mb-3"><div class="card-body"><EditForm Model="model" OnValidSubmit="Save"><div class="row g-2">
+<div class="col"><InputText class="form-control" @bind-Value="model.Name" placeholder="Bank Name" /></div>
+<div class="col"><InputText class="form-control" @bind-Value="model.AccountNumber" placeholder="Account Number" /></div>
+<div class="col"><InputSelect class="form-select" @bind-Value="model.ChartOfAccountId">@foreach(var c in coas){<option value="@c.Id">@c.Code - @c.Name</option>}</InputSelect></div>
+<div class="col-auto"><button class="btn btn-success">Add</button></div></div></EditForm></div></div>
+<table class="table table-sm"><thead><tr><th>Name</th><th>Account No</th><th>COA</th></tr></thead><tbody>@foreach(var b in items){<tr><td>@b.Name</td><td>@b.AccountNumber</td><td>@b.ChartOfAccount.Name</td></tr>}</tbody></table>
+
+@code {
+    private List<Bank> items = new();
+    private List<ChartOfAccount> coas = new();
+    private Bank model = new();
+    protected override async Task OnInitializedAsync(){coas = await Db.ChartOfAccounts.OrderBy(x=>x.Code).ToListAsync(); if (coas.Any()) model.ChartOfAccountId=coas.First().Id; await Load();}
+    private Task Load()=> Db.Banks.Include(x=>x.ChartOfAccount).OrderBy(x=>x.Name).ToListAsync().ContinueWith(t=>items=t.Result);
+    private async Task Save(){Db.Banks.Add(model); await Db.SaveChangesAsync(); model = new Bank{ChartOfAccountId = coas.FirstOrDefault()?.Id ?? 0}; await Load();}
+}

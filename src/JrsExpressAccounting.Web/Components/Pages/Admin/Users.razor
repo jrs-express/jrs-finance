@@ -1,0 +1,26 @@
+@page "/admin/users"
+@attribute [Authorize(Policy="AdminOnly")]
+@inject AccountingDbContext Db
+
+<h1>Users and Roles</h1>
+<EditForm Model="model" OnValidSubmit="Save" class="row g-2 mb-3">
+    <div class="col"><InputText class="form-control" @bind-Value="model.Username" placeholder="Username" /></div>
+    <div class="col"><InputText class="form-control" @bind-Value="model.FullName" placeholder="Full Name" /></div>
+    <div class="col"><InputText class="form-control" @bind-Value="model.Email" placeholder="Email" /></div>
+    <div class="col"><InputText class="form-control" @bind-Value="password" placeholder="Password" /></div>
+    <div class="col"><InputSelect class="form-select" @bind-Value="roleId">@foreach(var r in roles){<option value="@r.Id">@r.Name</option>}</InputSelect></div>
+    <div class="col-auto"><button class="btn btn-success">Add User</button></div>
+</EditForm>
+<table class="table table-sm"><thead><tr><th>Username</th><th>Name</th><th>Email</th><th>Roles</th></tr></thead><tbody>@foreach(var u in users){<tr><td>@u.Username</td><td>@u.FullName</td><td>@u.Email</td><td>@string.Join(", ", u.Roles.Select(x=>x.Role.Name))</td></tr>}</tbody></table>
+
+@code {
+    private UserAccount model = new();
+    private string password = "User@123";
+    private int roleId;
+    private List<UserAccount> users = new();
+    private List<Role> roles = new();
+
+    protected override async Task OnInitializedAsync(){ roles = await Db.Roles.ToListAsync(); roleId = roles.FirstOrDefault()?.Id ?? 0; await Load(); }
+    private async Task Load()=>users = await Db.UserAccounts.Include(x=>x.Roles).ThenInclude(x=>x.Role).OrderBy(x=>x.Username).ToListAsync();
+    private async Task Save(){ model.PasswordHash = BCrypt.Net.BCrypt.HashPassword(password); Db.UserAccounts.Add(model); await Db.SaveChangesAsync(); Db.UserAccountRoles.Add(new UserAccountRole{UserAccountId=model.Id,RoleId=roleId}); await Db.SaveChangesAsync(); model = new(); password="User@123"; await Load(); }
+}
