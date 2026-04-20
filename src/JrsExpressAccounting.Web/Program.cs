@@ -57,6 +57,42 @@ app.MapGet("/logout", async context =>
     context.Response.Redirect("/login");
 });
 
+app.MapPost("/login", async (HttpContext context, AccountingDbContext db) =>
+{
+    var form = await context.Request.ReadFormAsync();
+    var username = form["username"].ToString();
+    var password = form["password"].ToString();
+
+    if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+    {
+        context.Response.Redirect("/login?error=empty");
+        return;
+    }
+
+    var user = await db.UserAccounts
+        .Include(x => x.Roles).ThenInclude(x => x.Role)
+        .FirstOrDefaultAsync(x => x.Username == username && x.IsActive);
+    if (user is null || !BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
+    {
+        context.Response.Redirect("/login?error=invalid");
+        return;
+    }
+
+    var claims = new List<System.Security.Claims.Claim>
+    {
+        new(System.Security.Claims.ClaimTypes.NameIdentifier, user.Id.ToString()),
+        new(System.Security.Claims.ClaimTypes.Name, user.Username),
+        new("full_name", user.FullName)
+    };
+    claims.AddRange(user.Roles.Select(r => new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.Role, r.Role.Name)));
+
+    var identity = new System.Security.Claims.ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+    var principal = new System.Security.Claims.ClaimsPrincipal(identity);
+    await context.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+
+    context.Response.Redirect("/");
+}).DisableAntiforgery();
+
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
