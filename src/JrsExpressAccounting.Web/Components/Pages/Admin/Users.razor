@@ -3,7 +3,7 @@
 @inject AccountingDbContext Db
 
 <h1>Users and Roles</h1>
-<EditForm Model="model" OnValidSubmit="Save" class="row g-2 mb-3">
+<EditForm FormName="usersForm" Model="model" OnValidSubmit="Save" class="row g-2 mb-3">
     <div class="col"><InputText class="form-control" @bind-Value="model.Username" placeholder="Username" /></div>
     <div class="col"><InputText class="form-control" @bind-Value="model.FullName" placeholder="Full Name" /></div>
     <div class="col"><InputText class="form-control" @bind-Value="model.Email" placeholder="Email" /></div>

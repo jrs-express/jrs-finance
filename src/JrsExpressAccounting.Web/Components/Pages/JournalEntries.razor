@@ -4,7 +4,7 @@
 
 <h1>Journal Entries</h1>
 <div class="card mb-3"><div class="card-body">
-    <EditForm Model="model" OnValidSubmit="Save">
+    <EditForm FormName="journalEntriesForm" Model="model" OnValidSubmit="Save">
         <div class="row g-2">
             <div class="col"><InputDate class="form-control" @bind-Value="model.EntryDate" /></div>
             <div class="col"><InputText class="form-control" @bind-Value="model.Particulars" placeholder="Particulars" /></div>

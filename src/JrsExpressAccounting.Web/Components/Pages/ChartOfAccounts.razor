@@ -3,7 +3,7 @@
 @inject AccountingDbContext Db
 
 <h1>Chart of Accounts</h1>
-<div class="card mb-3"><div class="card-body"><EditForm Model="model" OnValidSubmit="Save"><div class="row g-2">
+<div class="card mb-3"><div class="card-body"><EditForm FormName="chartOfAccountsForm" Model="model" OnValidSubmit="Save"><div class="row g-2">
 <div class="col"><InputText class="form-control" @bind-Value="model.Code" placeholder="Code" /></div>
 <div class="col"><InputText class="form-control" @bind-Value="model.Name" placeholder="Name" /></div>
 <div class="col"><InputText class="form-control" @bind-Value="model.AccountType" placeholder="Type" /></div>

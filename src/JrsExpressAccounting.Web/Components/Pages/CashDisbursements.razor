@@ -3,7 +3,7 @@
 @inject AccountingDbContext Db
 
 <h1>Cash Disbursements / Withdrawals</h1>
-<EditForm Model="model" OnValidSubmit="Save" class="row g-2 mb-3">
+<EditForm FormName="cashDisbursementsForm" Model="model" OnValidSubmit="Save" class="row g-2 mb-3">
     <div class="col"><InputDate class="form-control" @bind-Value="model.TxnDate" /></div>
     <div class="col"><InputSelect class="form-select" @bind-Value="model.BranchId">@foreach(var b in branches){<option value="@b.Id">@b.Name</option>}</InputSelect></div>
     <div class="col"><InputSelect class="form-select" @bind-Value="model.BankId">@foreach(var b in banks){<option value="@b.Id">@b.Name</option>}</InputSelect></div>
