@@ -4,7 +4,7 @@
 
 <h1>BIR CAS Reports</h1>
 <p>Filter period and generate core CAS reports: Books of Accounts, Subsidiary Ledgers, VAT/WTAX summaries.</p>
-<div class="row g-2 mb-3"><div class="col"><InputDate class="form-control" @bind-Value="dateFrom" /></div><div class="col"><InputDate class="form-control" @bind-Value="dateTo" /></div><div class="col-auto"><button class="btn btn-success" @onclick="Load">Generate</button></div></div>
+<div class="row g-2 mb-3"><div class="col"><InputDate class="form-control" @bind-value="dateFrom" /></div><div class="col"><InputDate class="form-control" @bind-value="dateTo" /></div><div class="col-auto"><button class="btn btn-success" @onclick="Load">Generate</button></div></div>
 <div class="row">
     <div class="col-md-4"><div class="card"><div class="card-body"><h6>General Journal Count</h6><h3>@journalCount</h3></div></div></div>
     <div class="col-md-4"><div class="card"><div class="card-body"><h6>RVAT Total</h6><h3>@vatTotal.ToString("N2")</h3></div></div></div>
