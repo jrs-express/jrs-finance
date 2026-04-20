@@ -7,18 +7,15 @@
     <div class="card shadow">
         <div class="card-header bg-success text-white">JRS Express Accounting Login</div>
         <div class="card-body">
-            <EditForm FormName="loginForm" Model="model" OnValidSubmit="OnLogin">
-                <DataAnnotationsValidator />
-                <div class="mb-3">
-                    <label>Username</label>
-                    <InputText class="form-control" @bind-Value="model.Username" />
-                </div>
-                <div class="mb-3">
-                    <label>Password</label>
-                    <InputText class="form-control" type="password" @bind-Value="model.Password" />
-                </div>
-                <button class="btn btn-success w-100">Login</button>
-            </EditForm>
+            <div class="mb-3">
+                <label>Username</label>
+                <InputText class="form-control" @bind-Value="model.Username" />
+            </div>
+            <div class="mb-3">
+                <label>Password</label>
+                <InputText class="form-control" type="password" @bind-Value="model.Password" />
+            </div>
+            <button class="btn btn-success w-100" type="button" @onclick="OnLogin">Login</button>
             @if (!string.IsNullOrWhiteSpace(error))
             {
                 <div class="text-danger mt-2">@error</div>
@@ -34,6 +31,14 @@
 
     private async Task OnLogin()
     {
+        error = null;
+
+        if (string.IsNullOrWhiteSpace(model.Username) || string.IsNullOrWhiteSpace(model.Password))
+        {
+            error = "Username and password are required.";
+            return;
+        }
+
         var ok = await AuthService.LoginAsync(model.Username, model.Password);
         if (!ok)
         {
@@ -41,12 +46,12 @@
             return;
         }
 
-        Nav.NavigateTo("/", true);
+        Nav.NavigateTo("/", forceLoad: true);
     }
 
     private class LoginModel
     {
-        [Required] public string Username { get; set; } = string.Empty;
-        [Required] public string Password { get; set; } = string.Empty;
+        public string Username { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
     }
 }
