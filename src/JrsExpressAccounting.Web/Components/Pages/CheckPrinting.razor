@@ -3,7 +3,7 @@
 @inject AccountingDbContext Db
 
 <h1>Check Printing</h1>
-<EditForm Model="model" OnValidSubmit="Save" class="row g-2 mb-3">
+<EditForm FormName="checkPrintingForm" Model="model" OnValidSubmit="Save" class="row g-2 mb-3">
     <div class="col"><InputText class="form-control" @bind-Value="model.CheckNo" placeholder="Check #" /></div>
     <div class="col"><InputDate class="form-control" @bind-Value="model.CheckDate" /></div>
     <div class="col"><InputText class="form-control" @bind-Value="model.Payee" placeholder="Payee" /></div>

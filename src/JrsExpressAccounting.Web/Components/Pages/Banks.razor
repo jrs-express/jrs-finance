@@ -3,7 +3,7 @@
 @inject AccountingDbContext Db
 
 <h1>Banks</h1>
-<div class="card mb-3"><div class="card-body"><EditForm Model="model" OnValidSubmit="Save"><div class="row g-2">
+<div class="card mb-3"><div class="card-body"><EditForm FormName="banksForm" Model="model" OnValidSubmit="Save"><div class="row g-2">
 <div class="col"><InputText class="form-control" @bind-Value="model.Name" placeholder="Bank Name" /></div>
 <div class="col"><InputText class="form-control" @bind-Value="model.AccountNumber" placeholder="Account Number" /></div>
 <div class="col"><InputSelect class="form-select" @bind-Value="model.ChartOfAccountId">@foreach(var c in coas){<option value="@c.Id">@c.Code - @c.Name</option>}</InputSelect></div>
