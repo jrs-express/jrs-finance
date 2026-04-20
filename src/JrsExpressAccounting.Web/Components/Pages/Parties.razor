@@ -4,11 +4,11 @@
 
 <h1>Customers and Vendors (BIR Info)</h1>
 <div class="card mb-3"><div class="card-body"><EditForm Model="model" OnValidSubmit="Save"><div class="row g-2">
-<div class="col-2"><InputSelect class="form-select" @bind-value="model.PartyType"><option value="0">Customer</option><option value="1">Vendor</option></InputSelect></div>
-<div class="col"><InputText class="form-control" @bind-value="model.Name" placeholder="Name" /></div>
-<div class="col"><InputText class="form-control" @bind-value="model.Tin" placeholder="TIN" /></div>
-<div class="col"><InputText class="form-control" @bind-value="model.BusinessStyle" placeholder="Business Style" /></div>
-<div class="col"><InputText class="form-control" @bind-value="model.TaxType" placeholder="Tax Type (VAT/RVAT/WTAX)" /></div>
+<div class="col-2"><InputSelect class="form-select" @bind-Value="model.PartyType"><option value="0">Customer</option><option value="1">Vendor</option></InputSelect></div>
+<div class="col"><InputText class="form-control" @bind-Value="model.Name" placeholder="Name" /></div>
+<div class="col"><InputText class="form-control" @bind-Value="model.Tin" placeholder="TIN" /></div>
+<div class="col"><InputText class="form-control" @bind-Value="model.BusinessStyle" placeholder="Business Style" /></div>
+<div class="col"><InputText class="form-control" @bind-Value="model.TaxType" placeholder="Tax Type (VAT/RVAT/WTAX)" /></div>
 <div class="col-auto"><button class="btn btn-success">Add</button></div>
 </div></EditForm></div></div>
 <table class="table table-sm"><thead><tr><th @onclick="ToggleSort">Name</th><th>Type</th><th>TIN</th><th>Tax</th></tr></thead><tbody>@foreach(var p in items){<tr><td>@p.Name</td><td>@p.PartyType</td><td>@p.Tin</td><td>@p.TaxType</td></tr>}</tbody></table>
