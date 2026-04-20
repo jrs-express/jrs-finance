@@ -1,0 +1,8 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.github
+/.vs
+/src/JrsExpressAccounting.Web/bin/Debug/net8.0
+/src/JrsExpressAccounting.Web/obj
