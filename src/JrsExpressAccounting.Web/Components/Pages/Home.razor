@@ -1,0 +1,26 @@
+@page "/"
+@attribute [Authorize(Policy="AccountingOnly")]
+@inject AccountingDbContext Db
+
+<h1>Dashboard</h1>
+<div class="row g-3">
+    <div class="col-md-3"><div class="card card-jrs"><div class="card-body"><h6>Branches</h6><h3>@branchCount</h3></div></div></div>
+    <div class="col-md-3"><div class="card card-jrs"><div class="card-body"><h6>Customers/Vendors</h6><h3>@partyCount</h3></div></div></div>
+    <div class="col-md-3"><div class="card card-jrs"><div class="card-body"><h6>Journal Entries</h6><h3>@jeCount</h3></div></div></div>
+    <div class="col-md-3"><div class="card card-jrs"><div class="card-body"><h6>Bank Balance (sample)</h6><h3>@bankMovement.ToString("N2")</h3></div></div></div>
+</div>
+
+@code {
+    private int branchCount;
+    private int partyCount;
+    private int jeCount;
+    private decimal bankMovement;
+
+    protected override async Task OnInitializedAsync()
+    {
+        branchCount = await Db.Branches.CountAsync();
+        partyCount = await Db.Parties.CountAsync();
+        jeCount = await Db.JournalEntries.CountAsync();
+        bankMovement = await Db.BankTransactions.SumAsync(x => x.TxnType == BankTxnType.Deposit ? x.Amount : -x.Amount);
+    }
+}

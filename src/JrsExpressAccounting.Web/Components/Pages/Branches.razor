@@ -1,0 +1,49 @@
+@page "/branches"
+@attribute [Authorize(Policy="AccountingOnly")]
+@inject AccountingDbContext Db
+
+<h1>Branches</h1>
+<div class="row mb-2"><div class="col-md-4"><InputText class="form-control" @bind-Value="search" placeholder="Filter by name/code" /></div><div class="col"><button class="btn btn-success" @onclick="Load">Search</button></div></div>
+<div class="card mb-3"><div class="card-body">
+    <EditForm Model="model" OnValidSubmit="Save">
+        <div class="row g-2">
+            <div class="col"><InputText class="form-control" @bind-Value="model.Code" placeholder="Code" /></div>
+            <div class="col"><InputText class="form-control" @bind-Value="model.Name" placeholder="Name" /></div>
+            <div class="col"><InputText class="form-control" @bind-Value="model.Tin" placeholder="TIN" /></div>
+            <div class="col-3"><InputText class="form-control" @bind-Value="model.Address" placeholder="Address" /></div>
+            <div class="col-auto"><button class="btn btn-success">Add</button></div>
+        </div>
+    </EditForm>
+</div></div>
+<table class="table table-sm table-striped"><thead><tr><th>Code</th><th>Name</th><th>TIN</th><th>Address</th></tr></thead><tbody>@foreach(var x in items){<tr><td>@x.Code</td><td>@x.Name</td><td>@x.Tin</td><td>@x.Address</td></tr>}</tbody></table>
+<button class="btn btn-outline-success btn-sm me-2" @onclick="Prev" disabled="@(page==1)">Prev</button>
+<span>Page @page</span>
+<button class="btn btn-outline-success btn-sm ms-2" @onclick="Next">Next</button>
+
+@code {
+    private List<Branch> items = new();
+    private Branch model = new();
+    private int page = 1;
+    private const int pageSize = 20;
+    private string search = string.Empty;
+
+    protected override Task OnInitializedAsync() => Load();
+
+    private async Task Load()
+    {
+        var q = Db.Branches.AsNoTracking().AsQueryable();
+        if (!string.IsNullOrWhiteSpace(search)) q = q.Where(x => x.Name.Contains(search) || x.Code.Contains(search));
+        items = await q.OrderBy(x => x.Name).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+    }
+
+    private async Task Save()
+    {
+        Db.Branches.Add(model);
+        await Db.SaveChangesAsync();
+        model = new();
+        await Load();
+    }
+
+    private async Task Prev() { if (page > 1) page--; await Load(); }
+    private async Task Next() { page++; await Load(); }
+}

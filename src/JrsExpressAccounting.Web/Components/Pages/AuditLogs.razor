@@ -1,0 +1,14 @@
+@page "/audit-logs"
+@attribute [Authorize(Policy="AdminOnly")]
+@inject AccountingDbContext Db
+
+<h1>Audit Logs</h1>
+<div class="row mb-2"><div class="col-md-3"><InputText class="form-control" @bind-Value="userFilter" placeholder="Filter user" /></div><div class="col-auto"><button class="btn btn-success" @onclick="Load">Apply</button></div></div>
+<table class="table table-sm table-striped"><thead><tr><th>Time (UTC)</th><th>User</th><th>Action</th><th>Table</th><th>Changes</th></tr></thead><tbody>@foreach(var a in items){<tr><td>@a.ActionTimeUtc</td><td>@a.UserName</td><td>@a.Action</td><td>@a.TableName</td><td>@a.Changes</td></tr>}</tbody></table>
+
+@code {
+    private string userFilter = string.Empty;
+    private List<AuditLog> items = new();
+    protected override Task OnInitializedAsync()=>Load();
+    private async Task Load(){ var q = Db.AuditLogs.AsNoTracking(); if(!string.IsNullOrWhiteSpace(userFilter)) q = q.Where(x=>x.UserName.Contains(userFilter)); items = await q.OrderByDescending(x=>x.ActionTimeUtc).Take(500).ToListAsync(); }
+}

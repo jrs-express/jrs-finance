@@ -1,0 +1,16 @@
+@page "/general-ledger"
+@attribute [Authorize(Policy="AccountingOnly")]
+@inject AccountingDbContext Db
+
+<h1>General Ledger</h1>
+<div class="row g-2 mb-2"><div class="col"><InputDate class="form-control" @bind-Value="dateFrom" /></div><div class="col"><InputDate class="form-control" @bind-Value="dateTo" /></div><div class="col-auto"><button class="btn btn-success" @onclick="Load">Apply</button></div></div>
+<table class="table table-sm"><thead><tr><th>Date</th><th>Entry #</th><th>Particulars</th><th>Debit</th><th>Credit</th></tr></thead><tbody>@foreach(var r in rows){<tr><td>@r.Date.ToShortDateString()</td><td>@r.EntryNo</td><td>@r.Particulars</td><td>@r.Debit.ToString("N2")</td><td>@r.Credit.ToString("N2")</td></tr>}</tbody></table>
+
+@code {
+    private DateTime dateFrom = new(DateTime.Today.Year, 1, 1);
+    private DateTime dateTo = DateTime.Today;
+    private List<Row> rows = new();
+    protected override Task OnInitializedAsync()=>Load();
+    private async Task Load(){ rows = await Db.JournalEntries.Where(x=>x.EntryDate>=dateFrom&&x.EntryDate<=dateTo).SelectMany(x=>x.Lines.Select(l=>new Row{Date=x.EntryDate,EntryNo=x.EntryNo,Particulars=x.Particulars,Debit=l.Debit,Credit=l.Credit})).OrderBy(x=>x.Date).ToListAsync(); }
+    private class Row { public DateTime Date { get; set; } public string EntryNo { get; set; } = ""; public string Particulars { get; set; } = ""; public decimal Debit { get; set; } public decimal Credit { get; set; } }
+}

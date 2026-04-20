@@ -1,0 +1,24 @@
+@page "/cash-disbursements"
+@attribute [Authorize(Policy="AccountingOnly")]
+@inject AccountingDbContext Db
+
+<h1>Cash Disbursements / Withdrawals</h1>
+<EditForm Model="model" OnValidSubmit="Save" class="row g-2 mb-3">
+    <div class="col"><InputDate class="form-control" @bind-Value="model.TxnDate" /></div>
+    <div class="col"><InputSelect class="form-select" @bind-Value="model.BranchId">@foreach(var b in branches){<option value="@b.Id">@b.Name</option>}</InputSelect></div>
+    <div class="col"><InputSelect class="form-select" @bind-Value="model.BankId">@foreach(var b in banks){<option value="@b.Id">@b.Name</option>}</InputSelect></div>
+    <div class="col"><InputNumber class="form-control" @bind-Value="model.Amount" /></div>
+    <div class="col"><InputText class="form-control" @bind-Value="model.Remarks" placeholder="Expense/Reason" /></div>
+    <div class="col-auto"><button class="btn btn-success">Add Withdrawal</button></div>
+</EditForm>
+<table class="table table-sm"><thead><tr><th>Date</th><th>Remarks</th><th>Amount</th></tr></thead><tbody>@foreach(var t in items){<tr><td>@t.TxnDate.ToShortDateString()</td><td>@t.Remarks</td><td>@t.Amount.ToString("N2")</td></tr>}</tbody></table>
+
+@code {
+    private BankTransaction model = new() { TxnDate = DateTime.Today, TxnType = BankTxnType.Withdrawal };
+    private List<BankTransaction> items = new();
+    private List<Branch> branches = new();
+    private List<Bank> banks = new();
+    protected override async Task OnInitializedAsync(){branches=await Db.Branches.ToListAsync(); banks=await Db.Banks.ToListAsync(); model.BranchId=branches.FirstOrDefault()?.Id??0; model.BankId=banks.FirstOrDefault()?.Id??0; await Load();}
+    private async Task Load()=>items=await Db.BankTransactions.Where(x=>x.TxnType==BankTxnType.Withdrawal).OrderByDescending(x=>x.TxnDate).Take(100).ToListAsync();
+    private async Task Save(){Db.BankTransactions.Add(model); await Db.SaveChangesAsync(); model = new(){TxnDate=DateTime.Today,TxnType=BankTxnType.Withdrawal,BranchId=branches.FirstOrDefault()?.Id??0,BankId=banks.FirstOrDefault()?.Id??0}; await Load();}
+}
