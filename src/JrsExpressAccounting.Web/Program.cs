@@ -57,7 +57,7 @@ app.MapGet("/logout", async context =>
     context.Response.Redirect("/login");
 });
 
-app.MapPost("/login", async (HttpContext context, AccountingDbContext db) =>
+app.MapPost("/account/login", async (HttpContext context, AccountingDbContext db) =>
 {
     var form = await context.Request.ReadFormAsync();
     var username = form["username"].ToString();
